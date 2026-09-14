@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useToast } from './ToastContext';
+import { auth } from '../config/firebase';
+import { GoogleAuthProvider, signInWithPopup, signOut as firebaseSignOut, onAuthStateChanged } from 'firebase/auth';
 
 const AuthContext = createContext();
 
@@ -196,32 +198,62 @@ export function AuthProvider({ children }) {
     return { success: true };
   };
 
-  // Google Social Sign-In Simulation
-  const socialLogin = (provider = 'Google') => {
-    const googleEmail = 'alex.google@gmail.com';
-    let match = users.find((u) => u.email === googleEmail);
+  // Real-world Firebase Google Social Sign-In
+  const socialLogin = async (provider = 'Google') => {
+    if (provider === 'Google') {
+      const googleProvider = new GoogleAuthProvider();
+      googleProvider.setCustomParameters({ prompt: 'select_account' });
 
-    if (!match) {
-      match = {
-        id: `user-google-${Date.now()}`,
-        name: 'Alex Morgan',
-        email: googleEmail,
-        mobile: '9811223344',
-        password: 'google_oauth_pass',
-        address: '100 Tech Park, Whitefield, Bengaluru',
-        createdAt: new Date().toISOString().split('T')[0],
-        isSocial: true
-      };
-      setUsers((prev) => [...prev, match]);
+      try {
+        const result = await signInWithPopup(auth, googleProvider);
+        const fbUser = result.user;
+
+        const userProfile = {
+          id: fbUser.uid,
+          name: fbUser.displayName || 'Google User',
+          email: fbUser.email || '',
+          photoURL: fbUser.photoURL || '',
+          mobile: fbUser.phoneNumber || '',
+          address: '',
+          createdAt: new Date().toISOString().split('T')[0],
+          isSocial: true,
+          provider: 'Google'
+        };
+
+        setUsers((prev) => {
+          const existing = prev.find((u) => u.email === fbUser.email || u.id === fbUser.uid);
+          if (existing) {
+            return prev.map((u) => (u.email === fbUser.email || u.id === fbUser.uid ? { ...u, ...userProfile } : u));
+          }
+          return [...prev, userProfile];
+        });
+
+        setCurrentUser(userProfile);
+        const firstName = userProfile.name.split(' ')[0];
+        showToast(`Signed in with Google as ${firstName}!`, 'success');
+        return { success: true, user: userProfile };
+      } catch (error) {
+        console.error('Firebase Google Sign-In error:', error);
+        if (error.code === 'auth/popup-closed-by-user') {
+          showToast('Google Sign-In popup was closed.', 'info');
+          return { success: false, message: 'Popup closed' };
+        } else if (error.code === 'auth/cancelled-popup-request') {
+          return { success: false, message: 'Cancelled' };
+        } else {
+          showToast(`Google Sign-In failed: ${error.message || 'Authentication error'}`, 'error');
+          return { success: false, message: error.message };
+        }
+      }
     }
-
-    setCurrentUser(match);
-    showToast(`Successfully signed in with ${provider}!`, 'success');
-    return { success: true, user: match };
   };
 
   // Logout Session
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await firebaseSignOut(auth);
+    } catch (e) {
+      console.warn('Firebase SignOut warning:', e);
+    }
     setCurrentUser(null);
     showToast('You have been signed out.', '');
   };

@@ -51,11 +51,10 @@ async function initMailTransporter() {
         auth: { user: testAccount.user, pass: testAccount.pass }
       });
       console.log(`\n======================================================`);
-      console.log(`⚠️ REAL GMAIL NOT SET IN .env YET`);
-      console.log(`To send real emails to your personal inbox (e.g. maitysonu980@gmail.com):`);
-      console.log(`1. Open file: c:\\PROJECTS\\DesiMart\\backend\\.env`);
-      console.log(`2. Fill EMAIL_USER=your_email@gmail.com`);
-      console.log(`3. Fill EMAIL_PASS=your_16_char_gmail_app_password`);
+      console.log(`⚠️ NO EMAIL AUTHENTICATION CREDENTIALS SET IN .env`);
+      console.log(`To configure email authentication:`);
+      console.log(`1. Open file: backend/.env`);
+      console.log(`2. Provide EMAIL_USER and EMAIL_PASS (or custom SMTP credentials)`);
       console.log(`======================================================\n`);
     } catch (err) {
       console.error('Failed to create test transport', err);

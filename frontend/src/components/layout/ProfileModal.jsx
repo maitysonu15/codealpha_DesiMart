@@ -138,8 +138,12 @@ export default function ProfileModal({ isOpen, onClose, navigateTo, initialTab =
               {currentUser ? (
                 <>
                   <div className="profile-user-hero-badge">
-                    <div className="user-avatar-circle">
-                      {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
+                    <div className="user-avatar-circle" style={{ overflow: 'hidden' }}>
+                      {currentUser.photoURL ? (
+                        <img src={currentUser.photoURL} alt={currentUser.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                      ) : (
+                        currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U'
+                      )}
                     </div>
                     <div>
                       <div className="user-display-name">{currentUser.name}</div>

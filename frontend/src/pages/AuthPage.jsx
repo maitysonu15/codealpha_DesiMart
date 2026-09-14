@@ -246,9 +246,11 @@ export default function AuthPage({ isRegister = false, navigateTo }) {
   };
 
   // Handle Social Google Sign-in
-  const handleGoogleSignIn = () => {
-    socialLogin('Google');
-    navigateTo('products');
+  const handleGoogleSignIn = async () => {
+    const res = await socialLogin('Google');
+    if (res?.success) {
+      navigateTo('products');
+    }
   };
 
   const regStrength = getPasswordStrength(regPassword);

@@ -46,12 +46,12 @@ Backend runs at: `http://localhost:5000/`
 
 ---
 
-## 🔑 Real Email & SMS Configuration
+## 🔑 Email & SMS Configuration
 
 Open `backend/.env` and enter your credentials:
 
 ```env
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASS=your_16_char_gmail_app_password
+EMAIL_USER=your_email@domain.com
+EMAIL_PASS=your_authentication_password
 FAST2SMS_API_KEY=your_fast2sms_key
 ```
